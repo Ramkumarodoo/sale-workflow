@@ -21,6 +21,12 @@ class SaleOrder(models.Model):
         store=True,
     )
 
+    @api.model
+    def default_get(self, fields):
+        res = super(SaleOrder, self).default_get(fields)
+        res['workflow_process_id'] = self.env['sale.workflow.process'].search([('default', '=', True)], limit=1).id
+        return res
+
     @api.depends("order_line.qty_delivered", "order_line.product_uom_qty")
     def _compute_all_qty_delivered(self):
         precision = self.env["decimal.precision"].precision_get(
